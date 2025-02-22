@@ -1,24 +1,35 @@
-﻿namespace BLE_DesktopApp;
+﻿#if WINDOWS
+
+using BLE_DesktopApp.Services;
+
+namespace BLE_DesktopApp;
 
 public partial class MainPage : ContentPage
 {
-	int count = 0;
+	private BleServer _bleServer;
 
 	public MainPage()
 	{
 		InitializeComponent();
+		_bleServer = new BleServer();
 	}
 
-	private void OnCounterClicked(object sender, EventArgs e)
+	private async Task OnStartBleServerButtonClicked(object sender, EventArgs e)
 	{
-		count++;
+		if(sender is Button button)
+		{
+			button.Text = _bleServer.isRunning ? "Start BLE server" : "Stop BLE server";
+		}
 
-		if (count == 1)
-			CounterBtn.Text = $"Clicked {count} time";
+		if(_bleServer.isRunning)
+		{
+			await _bleServer.Stop();
+		}
 		else
-			CounterBtn.Text = $"Clicked {count} times";
-
-		SemanticScreenReader.Announce(CounterBtn.Text);
+		{
+			await _bleServer.Start();
+		}
 	}
 }
 
+#endif
