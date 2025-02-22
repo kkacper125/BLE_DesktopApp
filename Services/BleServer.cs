@@ -65,14 +65,14 @@ public class BleServer
         _characteristic = characteristicResult.Characteristic;
 
 
-        _characteristic.ReadRequested += (sender, args) =>
+        _characteristic.ReadRequested += async (sender, args) =>
         {
-            WriteToClient(args, "Helo From Gat Server");
+            await WriteToClientAsync(args, "Helo From Gat Server");
         };
 
-        _characteristic.WriteRequested += (sender, args) =>
+        _characteristic.WriteRequested += async (sender, args) =>
         {
-            ReadFromClient(args);
+            await ReadFromClientAsync(args);
         };
 
 
@@ -94,20 +94,45 @@ public class BleServer
         isRunning = false;
     }
 
-    private void WriteToClient(GattReadRequestedEventArgs args, string message)
+    private async Task WriteToClientAsync(GattReadRequestedEventArgs args, string message)
     {
-        var writer = new DataWriter();
-        writer.WriteString(message);
-        args.RespondWithValue(writer.DetachBuffer()); 
+        var deferral = args.GetDeferral();
+        try
+        {
+            var request = await args.GetRequestAsync(); 
+            var writer = new DataWriter();
+            writer.WriteString(message);
+            request.RespondWithValue(writer.DetachBuffer());
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in WriteToClientAsync: {ex.Message}");
+        }
+        finally
+        {
+            deferral.Complete();
+        }
     }
 
-    private void ReadFromClient(GattWriteRequestedEventArgs args)
+    private async Task ReadFromClientAsync(GattWriteRequestedEventArgs args)
     {
-        var reader = DataReader.FromBuffer(args.Request.Value); 
-        string message = reader.ReadString(reader.UnconsumedBufferLength);
-        Console.WriteLine($"Received message: {message}");
-
-        args.Respond(); 
+        var deferral = args.GetDeferral();
+        try
+        {
+            var request = await args.GetRequestAsync(); 
+            var reader = DataReader.FromBuffer(request.Value);
+            string message = reader.ReadString(reader.UnconsumedBufferLength);
+            Console.WriteLine($"Received message: {message}");
+            request.Respond();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in ReadFromClientAsync: {ex.Message}");
+        }
+        finally
+        {
+            deferral.Complete();
+        }
     }
 }
 #endif

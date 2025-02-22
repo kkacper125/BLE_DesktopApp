@@ -14,7 +14,7 @@ public partial class MainPage : ContentPage
 		_bleServer = new BleServer();
 	}
 
-	private async Task OnStartBleServerButtonClicked(object sender, EventArgs e)
+	private async void OnStartBleServerButtonClicked(object sender, EventArgs e)
 	{
 		if(sender is Button button)
 		{
@@ -23,7 +23,7 @@ public partial class MainPage : ContentPage
 
 		if(_bleServer.isRunning)
 		{
-			await _bleServer.Stop();
+			_bleServer.Stop();
 		}
 		else
 		{
