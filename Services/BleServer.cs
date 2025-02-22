@@ -1,10 +1,11 @@
 #if WINDOWS
+using System.Collections.ObjectModel;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Radios;
 using Windows.Storage.Streams;
-
+using BLE_DesktopApp.Models;
 
 namespace BLE_DesktopApp.Services;
 
@@ -15,7 +16,8 @@ public class BleServer
     private static readonly Guid _CharacteristicUuid = Guid.NewGuid();
     private static GattLocalCharacteristic? _characteristic;
 
-    public bool isRunning = false;
+    public bool isRunning {get; private set;} = false;
+    public ObservableCollection<BleClient> clientEvents {get;} = new ObservableCollection<BleClient>(); // TODO: Change this name to "Clients"
 
     public async Task<bool> Start()
     {
@@ -68,6 +70,8 @@ public class BleServer
         _characteristic.ReadRequested += async (sender, args) =>
         {
             await WriteToClientAsync(args, "Helo From Gat Server");
+
+            // Device.BeginInvokeOnMainThread(() => clientEvents.Add("Read request at time: " + System.DateTime.Now.ToLongTimeString()));
         };
 
         _characteristic.WriteRequested += async (sender, args) =>
@@ -123,6 +127,37 @@ public class BleServer
             var reader = DataReader.FromBuffer(request.Value);
             string message = reader.ReadString(reader.UnconsumedBufferLength);
             Console.WriteLine($"Received message: {message}");
+
+            string deviceId = request.Session?.DeviceId?.Id ?? "Unknown Device"; 
+
+            MainThread.BeginInvokeOnMainThread(() => 
+            {
+                var existingClient = clientEvents.FirstOrDefault(c => c.DeviceId == deviceId);
+
+                if(existingClient != null)
+                {
+                    existingClient.Messages.Add(new BleMessage {
+                        Text = message,
+                        Time = DateTime.Now
+                    });
+                    existingClient.LastSeen = DateTime.Now;
+                }
+                else
+                {
+                    var newBleClient = new BleClient
+                    {
+                        DeviceId = deviceId,
+                        LastSeen = DateTime.Now
+                    };
+
+                    newBleClient.Messages.Add(new BleMessage {
+                        Text = message,
+                        Time = DateTime.Now
+                    });
+                    clientEvents.Add(newBleClient);
+                }
+            });
+
             request.Respond();
         }
         catch (Exception ex)

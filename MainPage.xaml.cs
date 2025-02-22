@@ -12,6 +12,7 @@ public partial class MainPage : ContentPage
 	{
 		InitializeComponent();
 		_bleServer = new BleServer();
+		BindingContext = _bleServer;
 	}
 
 	private async void OnStartBleServerButtonClicked(object sender, EventArgs e)
