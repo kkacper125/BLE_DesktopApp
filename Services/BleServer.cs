@@ -16,7 +16,7 @@ public class BleServer
     private static GattLocalCharacteristic? _characteristic;
 
     public bool isRunning {get; private set;} = false;
-    public ObservableCollection<BleClient> clientEvents {get;} = new ObservableCollection<BleClient>(); // TODO: Change this name to "Clients"
+    public ObservableCollection<BleClient> Clients {get;} = new ObservableCollection<BleClient>(); 
 
     public async Task<bool> Start()
     {
@@ -128,7 +128,7 @@ public class BleServer
 
             MainThread.BeginInvokeOnMainThread(() => 
             {
-                var existingClient = clientEvents.FirstOrDefault(c => c.DeviceId == deviceId); 
+                var existingClient = Clients.FirstOrDefault(c => c.DeviceId == deviceId); 
 
                 if(existingClient != null)
                 {
@@ -152,7 +152,7 @@ public class BleServer
                         Time = DateTime.Now
                     });
 
-                    clientEvents.Add(newClient);
+                    Clients.Add(newClient);
                 }
             });
 
