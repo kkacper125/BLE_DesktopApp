@@ -1,6 +1,3 @@
-using System;
-using System.Collections.ObjectModel;
-
 namespace BLE_DesktopApp.Models;
 
 public class BleMessage

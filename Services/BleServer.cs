@@ -1,7 +1,6 @@
 #if WINDOWS
 using System.Collections.ObjectModel;
 using Windows.Devices.Bluetooth;
-using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Radios;
 using Windows.Storage.Streams;
@@ -70,8 +69,6 @@ public class BleServer
         _characteristic.ReadRequested += async (sender, args) =>
         {
             await WriteToClientAsync(args, "Helo From Gat Server");
-
-            // Device.BeginInvokeOnMainThread(() => clientEvents.Add("Read request at time: " + System.DateTime.Now.ToLongTimeString()));
         };
 
         _characteristic.WriteRequested += async (sender, args) =>
@@ -79,23 +76,22 @@ public class BleServer
             await ReadFromClientAsync(args);
         };
 
-
         _gattServiceProvider.StartAdvertising(new GattServiceProviderAdvertisingParameters
         {
             IsConnectable = true,
             IsDiscoverable = true
         });
 
-        Console.WriteLine("Server started successfully");
         isRunning = true;
+        Console.WriteLine("Server started successfully");
         return true;
     }
 
     public void Stop()
     {
         _gattServiceProvider?.StopAdvertising();
-        Console.WriteLine("Server has been stopped");
         isRunning = false;
+        Console.WriteLine("Server has been stopped");
     }
 
     private async Task WriteToClientAsync(GattReadRequestedEventArgs args, string message)
@@ -128,11 +124,11 @@ public class BleServer
             string message = reader.ReadString(reader.UnconsumedBufferLength);
             Console.WriteLine($"Received message: {message}");
 
-            string deviceId = request.Session?.DeviceId?.Id ?? "Unknown Device"; 
+            string deviceId = args.Session.DeviceId.Id ?? "Unknown Device";
 
             MainThread.BeginInvokeOnMainThread(() => 
             {
-                var existingClient = clientEvents.FirstOrDefault(c => c.DeviceId == deviceId);
+                var existingClient = clientEvents.FirstOrDefault(c => c.DeviceId == deviceId); 
 
                 if(existingClient != null)
                 {
@@ -144,17 +140,19 @@ public class BleServer
                 }
                 else
                 {
-                    var newBleClient = new BleClient
+                    var newClient = new BleClient
                     {
                         DeviceId = deviceId,
-                        LastSeen = DateTime.Now
+                        LastSeen = DateTime.Now,
                     };
 
-                    newBleClient.Messages.Add(new BleMessage {
+                    newClient.Messages.Add(new BleMessage 
+                    {
                         Text = message,
                         Time = DateTime.Now
                     });
-                    clientEvents.Add(newBleClient);
+
+                    clientEvents.Add(newClient);
                 }
             });
 
