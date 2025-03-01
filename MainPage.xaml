@@ -1,44 +1,69 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Name="page"
              x:Class="BLE_DesktopApp.MainPage"
              Shell.NavBarIsVisible="False">
 
-    <ScrollView>
-        <VerticalStackLayout
-            Padding="30,0"
-            Spacing="25">
-            <Button
-                Text="Start Server" 
-                Clicked="OnStartBleServerButtonClicked"
-                HorizontalOptions="Fill" />
+    <Grid RowDefinitions="Auto, Auto, *" WidthRequest="600" RowSpacing="20">
+        <Grid ColumnDefinitions="*, Auto" Padding="20">
+            <Label Text="BLE Server" FontSize="24" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
+            <StackLayout Orientation="Horizontal" HorizontalOptions="End" VerticalOptions="Center">
+                <Image Source="flag_us.png" HeightRequest="40" Margin="5">
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="LanguageButton_Clicked" CommandParameter="en"/>
+                    </Image.GestureRecognizers>
+                </Image>
+                <Image Source="flag_no.png" HeightRequest="40" Margin="5">
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="LanguageButton_Clicked" CommandParameter="no"/>
+                    </Image.GestureRecognizers>
+                </Image>
+            </StackLayout>
+        </Grid>
 
-            <Label Text="Client Activity:" 
-                FontAttributes="Bold"
-                Margin="0,20,0,0"/>
-            <CollectionView ItemsSource="{Binding Clients}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Frame BorderColor="Gray" Padding="10" Margin="0,10">
+        <Button 
+            Grid.Row="1"
+            Text="{Binding [StartBleServer]}"
+            FontSize="16"
+            Clicked="OnStartBleServerButtonClicked"
+            HorizontalOptions="Fill"
+            VerticalOptions="Start"/>
+        
+        <CollectionView Grid.Row="2" ItemsSource="{Binding BleServer.Clients}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <StackLayout>
+                        <Frame Background="LightGray">
+                            <Label 
+                                Text="{Binding DeviceId}"
+                                FontAttributes="Bold"/>
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer 
+                                    Command="{Binding ToggleExpandCommand, Source={x:Reference Name=page}}" 
+                                    CommandParameter="{Binding .}" />
+                            </Frame.GestureRecognizers>
+                        </Frame>
+                        <Frame Background="#FFF3F3F3" IsVisible="{Binding IsExpanded}">
                             <StackLayout>
-                                <Label Text="{Binding DeviceId}" FontAttributes="Bold"/>
-                                <Label Text="{Binding LastSeen, StringFormat='{0:HH:mm:ss}'}" FontSize="12" TextColor="Gray"/>
-                                <Label Text="Messages:" FontAttributes="Bold" Margin="5" />
                                 <CollectionView ItemsSource="{Binding Messages}">
                                     <CollectionView.ItemTemplate>
                                         <DataTemplate>
-                                            <StackLayout Orientation="Horizontal">
-                                                <Label Text="{Binding Time, StringFormat='{0:HH:mm:ss}'}" FontSize="12" TextColor="Gray" WidthRequest="60"/>
-                                                <Label Text="{Binding Text}" />
+                                            <StackLayout Orientation="Horizontal" Spacing="5">
+                                                <Label 
+                                                    Text="{Binding Time, StringFormat='{0:HH:mm:ss}'}"/>
+                                                <Label Text="-"/>
+                                                <Label
+                                                    Text="{Binding Text}"/>
                                             </StackLayout>
                                         </DataTemplate>
                                     </CollectionView.ItemTemplate>
                                 </CollectionView>
                             </StackLayout>
                         </Frame>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </VerticalStackLayout>
-    </ScrollView>
+                    </StackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
 </ContentPage>
