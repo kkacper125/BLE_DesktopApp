@@ -14,11 +14,11 @@ public partial class MainPage : ContentPage
 	public BleServer BleServer { get; }
 	public ICommand ToggleExpandCommand {  get; } 
 	public event EventHandler LanguageChanged;
+	public string? this[string key] => resourceManager.GetString(key);
 
 	private static readonly ResourceManager resourceManager = 
         new ResourceManager("BLE_DesktopApp.Resources.Localization.AppResources", typeof(MainPage).Assembly);
  	
-	public string? this[string key] => resourceManager.GetString(key);
 	
 	public MainPage()
 	{
@@ -40,7 +40,7 @@ public partial class MainPage : ContentPage
         LanguageChanged?.Invoke(this, EventArgs.Empty);
 	}
     
-	private void LanguageButton_Clicked(object sender, TappedEventArgs e)
+	private void OnChangeLanguageButtonClicked(object sender, TappedEventArgs e)
     {
 		if(e.Parameter != null){
         	SetAppLanguage(e.Parameter.ToString());
@@ -49,15 +49,18 @@ public partial class MainPage : ContentPage
 
 	private async void OnStartBleServerButtonClicked(object sender, EventArgs e)
 	{
-		if(BleServer.isRunning)
+		if (sender is Button button)
 		{
-			button.SetBinding(Button.TextProperty, new Binding("[StartBleServer]")); 
-			BleServer.Stop();
-		}
-		else
-		{
-			button.SetBinding(Button.TextProperty, new Binding("[StopBleServer]"));				
-			await BleServer.Start();
+			if(BleServer.isRunning)
+			{
+				button.SetBinding(Button.TextProperty, new Binding("[StartBleServer]")); 
+				BleServer.Stop();
+			}
+			else
+			{
+				button.SetBinding(Button.TextProperty, new Binding("[StopBleServer]"));				
+				await BleServer.Start();
+			}
 		}
 	}
 }

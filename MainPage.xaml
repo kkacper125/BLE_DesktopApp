@@ -11,12 +11,12 @@
             <StackLayout Orientation="Horizontal" HorizontalOptions="End" VerticalOptions="Center">
                 <Image Source="flag_us.png" HeightRequest="40" Margin="5">
                     <Image.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="LanguageButton_Clicked" CommandParameter="en"/>
+                        <TapGestureRecognizer Tapped="OnChangeLanguageButtonClicked" CommandParameter="en"/>
                     </Image.GestureRecognizers>
                 </Image>
                 <Image Source="flag_no.png" HeightRequest="40" Margin="5">
                     <Image.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="LanguageButton_Clicked" CommandParameter="no"/>
+                        <TapGestureRecognizer Tapped="OnChangeLanguageButtonClicked" CommandParameter="no"/>
                     </Image.GestureRecognizers>
                 </Image>
             </StackLayout>
