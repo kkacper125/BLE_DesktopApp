@@ -62,4 +62,8 @@
 		<Reference Include="Windows.Devices.Bluetooth.GenericAttributeProfile" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Resources\Localization\" />
+	</ItemGroup>
+
 </Project>
